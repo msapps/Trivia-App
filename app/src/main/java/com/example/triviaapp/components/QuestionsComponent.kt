@@ -7,20 +7,25 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,21 +47,26 @@ import com.example.triviaapp.screens.QuestionViewModel
 @Composable
 fun Questions(modifier: Modifier, questionsViewModel: QuestionViewModel) {
     val questions = questionsViewModel.questions.value.data?.toMutableList()
+    var questionIndexState by rememberSaveable { mutableIntStateOf(0) }
     if (questionsViewModel.questions.value.isLoading == true) {
         Log.d("QuestionsComposable", "Loading Questions")
     } else {
         Log.d("QuestionsComposable", "Questions Loaded ${questions?.size}")
-        /*questions?.take(50)?.forEach{question ->
-            Log.d("QuestionsComposable", "Question is ${question.question}")
-        }*/
-        questions?.let {
-            QuestionDisplay(
-                question = it.first(),
-                questionIndex = 1,
-                totalQuestionsCount = it.count()
-            )
+        val question = try {
+            questions?.get(questionIndexState)
+        } catch (e: Exception) {
+            null
         }
-
+        question?.let {
+            QuestionDisplay(
+                question = it,
+                questionIndex = questionIndexState,
+                totalQuestionsCount = questions?.count() ?: 1000,
+                viewModel = questionsViewModel
+            ) {
+                questionIndexState = it + 1
+            }
+        }
     }
 }
 
@@ -66,13 +76,13 @@ private fun QuestionDisplay(
     question: QuestionItem,
     questionIndex: Int,
     totalQuestionsCount: Int,
-    //viewModel: QuestionViewModel,
-    /*onNextClicked : () -> Unit*/
+    viewModel: QuestionViewModel,
+    onNextClicked: (Int) -> Unit
 ) {
     val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-    val choicesState = remember(question) { mutableStateOf(question.choices) }
-    var selectedRBIndexState by remember(question) { mutableStateOf<Int?>(null) }
-    var isCorrectAnswerSelectedState by remember(question) { mutableStateOf<Boolean?>(null) }
+    val choicesState = rememberSaveable(question) { mutableStateOf(question.choices) }
+    var selectedRBIndexState by rememberSaveable(question) { mutableStateOf<Int?>(null) }
+    var isCorrectAnswerSelectedState by rememberSaveable(question) { mutableStateOf<Boolean?>(null) }
     val updateAnswer: (Int) -> Unit = remember(question) {
         { selectedIndex ->
             selectedRBIndexState = selectedIndex
@@ -83,8 +93,7 @@ private fun QuestionDisplay(
     }
     Surface(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(4.dp),
+            .fillMaxSize(),
         color = Color.LightGray
     ) {
         Column(
@@ -93,11 +102,14 @@ private fun QuestionDisplay(
             horizontalAlignment = Alignment.Start
         ) {
             QuestionHeader(
-                questionNumber = questionIndex,
+                questionNumber = questionIndex + 1,
                 outOf = totalQuestionsCount
             )
             DottedDivider(pathEffect)
-            Column(modifier = Modifier.padding(top = 8.dp)) {
+            Column(
+                modifier = Modifier.padding(top = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(
                     text = question.question.orEmpty(),
                     color = Color.Black,
@@ -133,8 +145,33 @@ private fun QuestionDisplay(
                                 else Color.Red
                             )
                         )
-                        Text(text = choice.orEmpty(), color = Color.Black, fontSize = 12.sp)
+                        Text(text = buildAnnotatedString {
+                            withStyle(
+                                style = SpanStyle(
+                                    color = if (isCorrectAnswerSelectedState == true && selectedRBIndexState == index) {
+                                        Color.Green
+                                    } else if (isCorrectAnswerSelectedState == false && selectedRBIndexState == index)
+                                        Color.Red
+                                    else Color.Black,
+                                    fontSize = 12.sp
+                                )
+                            ) {
+                                append(choice.orEmpty())
+                            }
+                        })
                     }
+                }
+                Spacer(modifier = Modifier.height(14.dp))
+                Button(shape = RoundedCornerShape(45.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Yellow
+                    ),
+                    onClick = { onNextClicked(questionIndex) }) {
+                    Text(
+                        "Next >>",
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(8.dp)
+                    )
                 }
             }
 
