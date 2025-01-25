@@ -76,6 +76,8 @@ dependencies {
 
     //retrofit
     implementation(libs.squareup.retrofit)
+    implementation(libs.gson.converter)
+    implementation(libs.http.logging.interceptor)
 
     //gson
     implementation(libs.gson)

@@ -14,6 +14,7 @@ ksp = "2.0.0-1.0.23"
 coroutines = "1.7.3"
 retrofit = "2.11.0"
 gson = "2.11.0"
+http-logging-interceptor = "4.12.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -40,6 +41,8 @@ jetbrains-kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", 
 lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycleRuntimeKtx" }
 squareup-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+gson-converter = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+http-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "http-logging-interceptor" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
