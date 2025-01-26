@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,6 +23,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,9 +33,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -59,6 +63,7 @@ fun Questions(modifier: Modifier, questionsViewModel: QuestionViewModel) {
         }
         question?.let {
             QuestionDisplay(
+                modifier = modifier,
                 question = it,
                 questionIndex = questionIndexState,
                 totalQuestionsCount = questions?.count() ?: 1000,
@@ -73,6 +78,7 @@ fun Questions(modifier: Modifier, questionsViewModel: QuestionViewModel) {
 
 @Composable
 private fun QuestionDisplay(
+    modifier: Modifier,
     question: QuestionItem,
     questionIndex: Int,
     totalQuestionsCount: Int,
@@ -92,7 +98,7 @@ private fun QuestionDisplay(
         }
     }
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize(),
         color = Color.LightGray
     ) {
@@ -101,6 +107,7 @@ private fun QuestionDisplay(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
+            if (questionIndex >= 3) ShowProgress(questionIndex)
             QuestionHeader(
                 questionNumber = questionIndex + 1,
                 outOf = totalQuestionsCount
@@ -170,11 +177,62 @@ private fun QuestionDisplay(
                     Text(
                         "Next >>",
                         fontSize = 14.sp,
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(8.dp),
+                        color = Color.Black
                     )
                 }
             }
 
+        }
+    }
+
+}
+
+@Preview
+@Composable
+private fun ShowProgress(score: Int = 14) {
+    val gradient = Brush.linearGradient(
+        listOf(
+            Color(0XFF9FEEFD),
+            Color(0XFF987ABC)
+        )
+    )
+    val scoreState by rememberSaveable(score) {
+        mutableFloatStateOf(score * 0.005f)
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .height(45.dp)
+            .border(4.dp, color = Color.DarkGray, shape = RoundedCornerShape(50.dp))
+            .clip(RoundedCornerShape(50.dp)),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Button(
+            enabled = false,
+            modifier = Modifier
+                .padding(1.dp)
+                .fillMaxWidth(scoreState)
+                .background(brush = gradient),
+            onClick = {},
+            contentPadding = PaddingValues(4.dp),
+            elevation = null,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent
+            )
+        ) {
+            Text(
+                text = "$score", style = TextStyle(
+                    fontSize = 14.sp, fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(50.dp)),
+                textAlign = TextAlign.Center
+            )
         }
     }
 
