@@ -53,6 +53,8 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     testImplementation(libs.junit)
+    testImplementation(libs.junit.junit)
+    testImplementation(libs.junit.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -64,6 +66,7 @@ dependencies {
     implementation(libs.jetbrains.kotlinx.coroutines.android)
     implementation(libs.jetbrains.kotlinx.coroutines.core)
     implementation(libs.jetbrains.kotlinx.coroutines.play.services)
+    testImplementation(libs.coroutines.test)
 
     //coroutines-lifecycle-scopes
     implementation(libs.lifecycle.viewmodel.ktx)
@@ -78,9 +81,18 @@ dependencies {
     implementation(libs.squareup.retrofit)
     implementation(libs.gson.converter)
     implementation(libs.http.logging.interceptor)
+    testImplementation(libs.mock.webserver)
 
     //gson
     implementation(libs.gson)
+
+    //arch-core-testing
+    testImplementation(libs.arch.core.testing)
+    androidTestImplementation(libs.arch.core.testing)
+
+    //mockito
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.kotlin)
 }
 
 kapt {

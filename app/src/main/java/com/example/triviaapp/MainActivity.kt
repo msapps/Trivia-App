@@ -7,7 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.triviaapp.screens.QuestionsHome
@@ -21,8 +24,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TriviaAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    QuestionsHome(Modifier.padding(innerPadding))
+                val snackbarHostState = remember { SnackbarHostState() }
+                Scaffold(modifier = Modifier.fillMaxSize(),
+                    snackbarHost = {
+                        SnackbarHost(snackbarHostState)
+                    }) { innerPadding ->
+                    QuestionsHome(
+                        Modifier.padding(innerPadding),
+                        snackbarHostState = snackbarHostState
+                    )
                 }
             }
         }
@@ -33,6 +43,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun GreetingPreview() {
     TriviaAppTheme {
-        QuestionsHome(Modifier)
+        QuestionsHome(Modifier, snackbarHostState = SnackbarHostState())
     }
 }

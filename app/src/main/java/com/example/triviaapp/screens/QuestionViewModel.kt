@@ -7,28 +7,30 @@ import com.example.triviaapp.data.ApiResponse
 import com.example.triviaapp.model.QuestionItem
 import com.example.triviaapp.repositories.QuestionsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 @HiltViewModel
 class QuestionViewModel
 @Inject constructor(private val repository: QuestionsRepository) : ViewModel() {
 
     var questions = mutableStateOf(ApiResponse<ArrayList<QuestionItem>, Boolean, Exception>())
+    var questionsList: List<QuestionItem>? = null
 
     init {
-        fetchQuestions()
+        viewModelScope.launch {
+            questionsList = fetchQuestions().data
+        }
     }
 
-    private fun fetchQuestions(): ApiResponse<ArrayList<QuestionItem>, Boolean, Exception> {
+    suspend fun fetchQuestions(): ApiResponse<ArrayList<QuestionItem>, Boolean, Exception> =
+        suspendCoroutine {
         viewModelScope.launch {
             questions.value.isLoading = true
-            questions.value = withContext(Dispatchers.IO) { repository.getQuestions() }
-            /*questions.value.copy(data = withContext(Dispatchers.IO) { repository.getQuestions().data })
-            if (questions.value.data.toString().isNotEmpty()) questions.value.isLoading = false*/
+            questions.value = repository.getQuestions()
+            it.resume(questions.value)
         }
-        return questions.value
     }
 }

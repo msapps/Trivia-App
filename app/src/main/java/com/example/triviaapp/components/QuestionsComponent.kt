@@ -49,7 +49,10 @@ import com.example.triviaapp.model.QuestionItem
 import com.example.triviaapp.screens.QuestionViewModel
 
 @Composable
-fun Questions(modifier: Modifier, questionsViewModel: QuestionViewModel) {
+fun Questions(
+    modifier: Modifier, questionsViewModel: QuestionViewModel,
+    showSnackbar: @Composable (String) -> Unit
+) {
     val questions = questionsViewModel.questions.value.data?.toMutableList()
     var questionIndexState by rememberSaveable { mutableIntStateOf(0) }
     if (questionsViewModel.questions.value.isLoading == true) {
@@ -70,6 +73,10 @@ fun Questions(modifier: Modifier, questionsViewModel: QuestionViewModel) {
                 viewModel = questionsViewModel
             ) {
                 questionIndexState = it + 1
+            }
+        } ?: run {
+            questionsViewModel.questions.value.exception?.let {
+                showSnackbar(it.localizedMessage.orEmpty())
             }
         }
     }
